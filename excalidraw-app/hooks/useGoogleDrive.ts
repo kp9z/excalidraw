@@ -69,6 +69,10 @@ export const useGoogleDrive = (
       return;
     }
     try {
+      excalidrawAPI.setToast({
+        message: "Connecting to Google Drive…",
+        duration: 10_000,
+      });
       await getAccessToken();
     } catch (e: any) {
       excalidrawAPI.setToast({
@@ -115,6 +119,10 @@ export const useGoogleDrive = (
       return;
     }
     try {
+      excalidrawAPI.setToast({
+        message: "Connecting to Google Drive…",
+        duration: 10_000,
+      });
       await getAccessToken();
     } catch (e: any) {
       excalidrawAPI.setToast({
@@ -127,10 +135,13 @@ export const useGoogleDrive = (
 
     const fileInfo = await openDriveBrowser();
     if (!fileInfo) {
+      // User cancelled — clear the connecting toast
+      excalidrawAPI.setToast(null);
       return;
     }
 
     try {
+      excalidrawAPI.setToast({ message: "Opening from Google Drive…", duration: 10_000 });
       const json = await loadSceneFromDrive(fileInfo.fileId);
       const data = await loadFromBlob(new Blob([json]), null, null);
       excalidrawAPI.updateScene({
@@ -150,6 +161,10 @@ export const useGoogleDrive = (
         document.title,
         `?gdrive=${fileInfo.fileId}`,
       );
+      const displayName = fileInfo.fileName.replace(/\.excalidraw$/, "");
+      excalidrawAPI.setToast({
+        message: `Opened "${displayName}" from Google Drive ✓`,
+      });
     } catch (e: any) {
       excalidrawAPI.setToast({
         message: `Drive open failed: ${e.message}`,

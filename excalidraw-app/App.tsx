@@ -150,6 +150,7 @@ import {
   loadSceneFromDrive,
 } from "./data/googleDrive";
 import { activeDriveFileAtom } from "./googleDriveState";
+import { googleDriveIcon } from "./components/googleDriveIcon";
 
 import "./index.scss";
 
@@ -425,8 +426,13 @@ const ExcalidrawWrapper = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const isCollabDisabled = isRunningInIframe();
 
-  const { saveNewFileToDrive, openFileFromDrive, driveSaveDebounced } =
-    useGoogleDrive(excalidrawAPI);
+  const {
+    activeDriveFile,
+    isDriveSaving,
+    saveNewFileToDrive,
+    openFileFromDrive,
+    driveSaveDebounced,
+  } = useGoogleDrive(excalidrawAPI);
 
   const { editorTheme, appTheme, setAppTheme } = useHandleAppTheme();
 
@@ -1046,6 +1052,8 @@ const ExcalidrawWrapper = () => {
           refresh={() => forceRefresh((prev) => !prev)}
           onSaveToDrive={saveNewFileToDrive}
           onOpenFromDrive={openFileFromDrive}
+          activeDriveFile={activeDriveFile}
+          isDriveSaving={isDriveSaving}
         />
         <AppWelcomeScreen
           onCollabDialogOpen={onCollabDialogOpen}
@@ -1317,6 +1325,44 @@ const ExcalidrawWrapper = () => {
             scale={window.devicePixelRatio}
             ref={debugCanvasRef}
           />
+        )}
+        {activeDriveFile && (
+          <div
+            style={{
+              position: "fixed",
+              top: 10,
+              left: 60,
+              zIndex: 10,
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+              background: "var(--color-surface-primary, #fff)",
+              border: "1px solid var(--color-border, #e0e0e0)",
+              borderRadius: 20,
+              padding: "3px 10px 3px 7px",
+              fontSize: 12,
+              color: "var(--color-text-primary, #1e1e1e)",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
+              maxWidth: 220,
+              pointerEvents: "none",
+            }}
+          >
+            <span style={{ display: "flex", opacity: isDriveSaving ? 1 : 0.7, flexShrink: 0 }}>
+              {googleDriveIcon}
+            </span>
+            <span
+              style={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                opacity: 0.8,
+              }}
+            >
+              {isDriveSaving
+                ? "Saving…"
+                : activeDriveFile.fileName.replace(/\.excalidraw$/, "") || "Drive file"}
+            </span>
+          </div>
         )}
       </Excalidraw>
       <DriveFileBrowser />

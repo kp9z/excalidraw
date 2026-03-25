@@ -13,6 +13,8 @@ import type { Theme } from "@excalidraw/element/types";
 import { LanguageList } from "../app-language/LanguageList";
 import { isExcalidrawPlusSignedUser } from "../app_constants";
 
+import type { DriveFileInfo } from "../data/googleDrive";
+
 import { googleDriveIcon } from "./googleDriveIcon";
 
 import { saveDebugState } from "./DebugCanvas";
@@ -26,11 +28,19 @@ export const AppMainMenu: React.FC<{
   refresh: () => void;
   onSaveToDrive: () => void;
   onOpenFromDrive: () => void;
+  activeDriveFile: DriveFileInfo | null;
+  isDriveSaving: boolean;
 }> = React.memo((props) => {
+  const saveLabel = props.activeDriveFile
+    ? props.isDriveSaving
+      ? "Saving to Drive…"
+      : `Save to Drive`
+    : "Save to Google Drive";
+
   return (
     <MainMenu>
       <MainMenu.Item icon={googleDriveIcon} onSelect={props.onSaveToDrive}>
-        Save to Google Drive
+        {saveLabel}
       </MainMenu.Item>
       <MainMenu.Item icon={googleDriveIcon} onSelect={props.onOpenFromDrive}>
         Open from Google Drive
