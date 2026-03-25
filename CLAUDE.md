@@ -54,6 +54,7 @@ Uses **Jotai** for atomic state management, scoped via `jotai-scope` to allow co
 ### Element System (`@excalidraw/element`)
 
 Core logic for all element types. Key files (all large — 50–85KB each):
+
 - `binding.ts` — arrow/element binding
 - `linearElementEditor.ts` — line/arrow editing
 - `elbowArrow.ts` — elbow arrow routing
@@ -62,6 +63,7 @@ Core logic for all element types. Key files (all large — 50–85KB each):
 ### Math System (`@excalidraw/math`)
 
 Uses **branded types** for type safety — never use plain `{ x, y }` objects. Always import from `packages/math/src/types.ts`:
+
 - `GlobalPoint`, `LocalPoint` — coordinate space-specific points
 - `Vector`, `Radians`, `Degrees` — other geometry primitives
 

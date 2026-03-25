@@ -142,6 +142,14 @@ import DebugCanvas, {
 } from "./components/DebugCanvas";
 import { AIComponents } from "./components/AI";
 import { ExcalidrawPlusIframeExport } from "./ExcalidrawPlusIframeExport";
+import { DriveFileBrowser } from "./components/DriveFileBrowser";
+import { useGoogleDrive } from "./hooks/useGoogleDrive";
+import {
+  getAccessToken,
+  initGoogleAuth,
+  loadSceneFromDrive,
+} from "./data/googleDrive";
+import { activeDriveFileAtom } from "./googleDriveState";
 
 import "./index.scss";
 
@@ -151,6 +159,13 @@ import { AppSidebar } from "./components/AppSidebar";
 import type { CollabAPI } from "./collab/Collab";
 
 polyfill();
+
+// Initialize Google OAuth client once the GIS script has loaded
+if (document.readyState === "loading") {
+  window.addEventListener("load", initGoogleAuth, { once: true });
+} else {
+  initGoogleAuth();
+}
 
 window.EXCALIDRAW_THROTTLE_RENDER = true;
 
@@ -224,12 +239,45 @@ const initializeScene = async (opts: {
 > => {
   const searchParams = new URLSearchParams(window.location.search);
   const id = searchParams.get("id");
+  const gdriveFileId = searchParams.get("gdrive");
   const jsonBackendMatch = window.location.hash.match(
     /^#json=([a-zA-Z0-9_-]+),([a-zA-Z0-9_-]+)$/,
   );
   const externalUrlMatch = window.location.hash.match(/^#url=(.*)$/);
 
   const localDataState = importFromLocalStorage();
+
+  // Load from Google Drive if ?gdrive=<fileId> is in the URL
+  if (gdriveFileId && !id && !jsonBackendMatch) {
+    try {
+      await getAccessToken();
+      const json = await loadSceneFromDrive(gdriveFileId);
+      const data = await loadFromBlob(new Blob([json]), null, null);
+      appJotaiStore.set(activeDriveFileAtom, {
+        fileId: gdriveFileId,
+        fileName: "",
+      });
+      return {
+        scene: {
+          elements: data.elements,
+          appState: data.appState,
+          files: data.files,
+          scrollToContent: true,
+        },
+        isExternalScene: false,
+      };
+    } catch (e: any) {
+      console.error("[Drive] Failed to load scene:", e);
+      return {
+        scene: {
+          appState: {
+            errorMessage: `Failed to load from Google Drive: ${e.message}`,
+          },
+        },
+        isExternalScene: false,
+      };
+    }
+  }
 
   let scene: Omit<
     RestoredDataState,
@@ -376,6 +424,9 @@ const ExcalidrawWrapper = () => {
 
   const [errorMessage, setErrorMessage] = useState("");
   const isCollabDisabled = isRunningInIframe();
+
+  const { saveNewFileToDrive, openFileFromDrive, driveSaveDebounced } =
+    useGoogleDrive(excalidrawAPI);
 
   const { editorTheme, appTheme, setAppTheme } = useHandleAppTheme();
 
@@ -684,6 +735,9 @@ const ExcalidrawWrapper = () => {
       collabAPI.syncElements(elements);
     }
 
+    // Drive auto-save (only active when a Drive file is open)
+    driveSaveDebounced(elements, appState, files);
+
     // this check is redundant, but since this is a hot path, it's best
     // not to evaludate the nested expression every time
     if (!LocalData.isSavePaused()) {
@@ -990,10 +1044,13 @@ const ExcalidrawWrapper = () => {
           theme={appTheme}
           setTheme={(theme) => setAppTheme(theme)}
           refresh={() => forceRefresh((prev) => !prev)}
+          onSaveToDrive={saveNewFileToDrive}
+          onOpenFromDrive={openFileFromDrive}
         />
         <AppWelcomeScreen
           onCollabDialogOpen={onCollabDialogOpen}
           isCollabEnabled={!isCollabDisabled}
+          onOpenFromDrive={openFileFromDrive}
         />
         <OverwriteConfirmDialog>
           <OverwriteConfirmDialog.Actions.ExportToImage />
@@ -1262,6 +1319,7 @@ const ExcalidrawWrapper = () => {
           />
         )}
       </Excalidraw>
+      <DriveFileBrowser />
     </div>
   );
 };

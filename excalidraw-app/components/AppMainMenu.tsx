@@ -13,6 +13,8 @@ import type { Theme } from "@excalidraw/element/types";
 import { LanguageList } from "../app-language/LanguageList";
 import { isExcalidrawPlusSignedUser } from "../app_constants";
 
+import { googleDriveIcon } from "./googleDriveIcon";
+
 import { saveDebugState } from "./DebugCanvas";
 
 export const AppMainMenu: React.FC<{
@@ -22,9 +24,18 @@ export const AppMainMenu: React.FC<{
   theme: Theme | "system";
   setTheme: (theme: Theme | "system") => void;
   refresh: () => void;
+  onSaveToDrive: () => void;
+  onOpenFromDrive: () => void;
 }> = React.memo((props) => {
   return (
     <MainMenu>
+      <MainMenu.Item icon={googleDriveIcon} onSelect={props.onSaveToDrive}>
+        Save to Google Drive
+      </MainMenu.Item>
+      <MainMenu.Item icon={googleDriveIcon} onSelect={props.onOpenFromDrive}>
+        Open from Google Drive
+      </MainMenu.Item>
+      <MainMenu.Separator />
       <MainMenu.DefaultItems.LoadScene />
       <MainMenu.DefaultItems.SaveToActiveFile />
       <MainMenu.DefaultItems.Export />

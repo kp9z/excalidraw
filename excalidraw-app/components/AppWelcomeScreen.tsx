@@ -6,9 +6,12 @@ import React from "react";
 
 import { isExcalidrawPlusSignedUser } from "../app_constants";
 
+import { googleDriveIcon } from "./googleDriveIcon";
+
 export const AppWelcomeScreen: React.FC<{
   onCollabDialogOpen: () => any;
   isCollabEnabled: boolean;
+  onOpenFromDrive: () => void;
 }> = React.memo((props) => {
   const { t } = useI18n();
   let headingContent;
@@ -58,6 +61,13 @@ export const AppWelcomeScreen: React.FC<{
         </WelcomeScreen.Center.Heading>
         <WelcomeScreen.Center.Menu>
           <WelcomeScreen.Center.MenuItemLoadScene />
+          <WelcomeScreen.Center.MenuItem
+            icon={googleDriveIcon}
+            shortcut={null}
+            onSelect={props.onOpenFromDrive}
+          >
+            Open from Google Drive
+          </WelcomeScreen.Center.MenuItem>
           <WelcomeScreen.Center.MenuItemHelp />
           {props.isCollabEnabled && (
             <WelcomeScreen.Center.MenuItemLiveCollaborationTrigger
