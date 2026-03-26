@@ -73,6 +73,12 @@ Uses **branded types** for type safety — never use plain `{ x, y }` objects. A
 
 Canvas-based rendering pipeline in `packages/excalidraw/renderer/`. Elements are rendered statically to canvas via Rough.js.
 
+## Reference Docs
+
+- **`docs/CONSTITUTION.md`** — product philosophy and decision-making criteria (speed of thought to canvas, friction removal, offline-first)
+- **`docs/DESIGN.md`** — design language (Rough.js aesthetic, typography, color, interaction model)
+- **`docs/TESTING.md`** — testing setup and conventions (Vitest, helpers, CI workflows)
+
 ## Code Conventions
 
 - Functional components with hooks only; no class components
