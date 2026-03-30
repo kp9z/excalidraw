@@ -87,3 +87,10 @@ Canvas-based rendering pipeline in `packages/excalidraw/renderer/`. Elements are
 - Prefer immutable data (`const`, `readonly`)
 - Use optional chaining (`?.`) and nullish coalescing (`??`)
 - Prefer performant solutions; avoid unnecessary allocations in hot paths
+
+## Active Technologies
+- TypeScript 5.x + React 19 (existing monorepo stack) + Google Identity Services (GIS, loaded via script tag), Google Drive REST API v3 (via fetch), Google Picker API (loaded on demand via gapi) (001-google-drive-integration)
+- localStorage (Drive file ID + timestamps), in-memory (OAuth access token) (001-google-drive-integration)
+
+## Recent Changes
+- 001-google-drive-integration: Added TypeScript 5.x + React 19 (existing monorepo stack) + Google Identity Services (GIS, loaded via script tag), Google Drive REST API v3 (via fetch), Google Picker API (loaded on demand via gapi)
